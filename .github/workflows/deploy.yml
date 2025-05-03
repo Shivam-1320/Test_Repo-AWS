@@ -30,8 +30,8 @@ jobs:
       - name: Trigger deployment
         uses: webfactory/create-aws-codedeploy-deployment@v1
         with:
-          application-name: 'YourApp'
-          deployment-group: 'YourDeploymentGroup'
+          application-name: 'my-web-app'
+          deployment-group: 'prod-group'
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: 'ap-south-1'

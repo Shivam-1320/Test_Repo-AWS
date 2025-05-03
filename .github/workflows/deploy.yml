@@ -1,16 +1,38 @@
+name: Deploy to AWS CodeDeploy
+
+on:
+  push:
+    branches:
+      - main
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Create CodeDeploy deployment
+      - name: Zip source
+        run: zip -r app.zip . -x '*.git*'
+
+      - name: Upload to S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ap-south-1
+          SOURCE_DIR: "./"
+
+      - name: Trigger deployment
         uses: webfactory/create-aws-codedeploy-deployment@v1
         with:
+          application-name: 'YourApp'
+          deployment-group: 'YourDeploymentGroup'
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: 'ap-south-1'  # Updated to your region
-          application-name: 'my-application'
-          deployment-group: 'my-deployment-group'
-          deployment-config: 'CodeDeployDefault.AllAtOnce'
+          aws-region: 'ap-south-1'
+
